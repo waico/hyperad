@@ -1,4 +1,5 @@
 import argparse
+import datetime;
 import os
 import pandas as pd
 
@@ -116,6 +117,46 @@ async def predict(request):
     return web.json_response(prediction.to_json(orient = "records"))
 
 
+async def csv(request):
+
+    """
+    ---
+    description: Ok, gimme data to predict your fickin metrics.
+    tags:
+    - predict
+    parameters: 
+    - in: formData
+      name: file
+      type: file
+      description: Data to predict.
+    produces:
+    - application/json
+    responses:
+      "200":
+        description: OK
+    """
+
+    reader = await request.multipart()
+    csv = await reader.next()
+
+    ts = datetime.datetime.now().timestamp()
+    temp_file_name = f'temp{ts}.csv'
+    with open(temp_file_name, 'wb') as temp:
+        while True:
+            chunk = await csv.read_chunk()
+            if not chunk:
+                break
+            temp.write(chunk)
+        
+    df = pd.read_csv(temp_file_name)
+    df['created'] = pd.to_datetime(df['created'])
+    df = df.fillna('missing')
+
+    os.remove(temp_file_name)
+    
+    return web.json_response(df.to_json(orient = "records"))
+
+
 def main():
     STATIC_PATH = os.path.join(os.path.dirname(__file__), "static")    
 
@@ -123,6 +164,7 @@ def main():
     app.router.add_static('/static', STATIC_PATH, name='static')
     app.router.add_route('GET', "/", index)
     app.router.add_route('POST', "/predict", predict)
+    app.router.add_route('POST', "/csv", csv)
 
     setup_swagger(app, ui_version=2, ) 
 
