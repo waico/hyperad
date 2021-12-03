@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  hyperad:
+    build: .
+    image: telepzk/hyperad
+    container_name: hyperad
+    command: python app.py --port 8010
+    ports:
+      - 8010:8010
+    restart: always

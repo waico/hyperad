@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui" charset="utf-8">
+  <title>WAICO x Hyper AdTech</title>
+  <link rel="shortcut icon" href="static/logo.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-container>
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              md="6">
+              <div class="mx-auto my-6 text-center">
+                <div id="user-category"></div>
+              </div>
+            </v-col>
+            <v-col
+              cols="12"
+              md="6">
+              <v-card
+                class="mx-auto my-6"
+                max-width="500">
+                <v-card-title>User classification</v-card-title>
+
+                <v-card-text>
+                  <v-form
+                    ref="categorize"
+                    v-model="valid"
+                    lazy-validation>
+                    <v-text-field
+                      v-model="gamecategory"
+                      :counter="20"
+                      :rules="gamecategoryRules"
+                      label="Game Category"
+                      required></v-text-field>
+                    
+                    <v-text-field
+                      v-model="subgamecategory"
+                      :counter="50"
+                      :rules="subgamecategoryRules"
+                      label="Sub game category"
+                      required></v-text-field>
+                    
+                    <v-text-field
+                      v-model="bundle"
+                      :counter="150"
+                      :rules="bundleRules"
+                      label="Bundle"
+                      required></v-text-field>
+                    
+                    <v-row>
+                      <v-col>
+                        <v-date-picker class="mt-4" :elevation="1" v-model="created" locale="ru-ru" full-width></v-date-picker>
+                      </v-col>
+                    </v-row>
+
+                    <v-text-field
+                      v-model="shift"
+                      :counter="6"
+                      :rules="shiftRules"
+                      label="Shift"
+                      required></v-text-field>
+
+                    <v-text-field
+                      v-model="oblast"
+                      :counter="120"
+                      :rules="oblastRules"
+                      label="Region"
+                      required></v-text-field>
+
+                    <v-text-field
+                      v-model="city"
+                      :counter="120"
+                      :rules="cityRules"
+                      label="City"
+                      required></v-text-field>
+
+                    <v-text-field
+                      v-model="os"
+                      :counter="15"
+                      :rules="osRules"
+                      label="OS"
+                      required></v-text-field>
+                    
+                    <v-text-field
+                      v-model="osv"
+                      :counter="6"
+                      :rules="osvRules"
+                      label="OS Version"
+                      required></v-text-field>
+
+                  </v-form>
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                  <v-btn text :disabled="!valid" @click="categorize">
+                    Сategorize
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-main>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      data: () => ({
+        valid: true,
+        gamecategory: 'Applications',
+        gamecategoryRules: [
+          v => !!v || 'Game category is required',
+          v => (v && v.length <= 20) || 'Game category must be less than 20 characters',
+        ],
+        
+        subgamecategory: 'Shopping',
+        subgamecategoryRules: [
+          v => !!v || 'Sub game category category is required',
+          v => (v && v.length <= 50) || 'Sub game category must be less than 50 characters',
+        ],
+
+        bundle: 'com.allgoritm.youla',
+        bundleRules: [
+          v => !!v || 'Bundle is required',
+          v => (v && v.length <= 20) || 'Bundle must be less than 150 characters',
+        ],
+
+        created: '2021-09-19',
+
+        shift: 'MSK+2',
+        shiftRules: [
+          v => !!v || 'Shift is required',
+          v => (v && v.length <= 6) || 'Shift must be less than 6 characters',
+        ],
+
+        oblast: 'Томская область',
+        oblastRules: [
+          v => !!v || 'Region is required',
+          v => (v && v.length <= 120) || 'Region must be less than 120 characters',
+        ],
+
+        city: 'Северск',
+        cityRules: [
+          v => !!v || 'City is required',
+          v => (v && v.length <= 120) || 'City must be less than 120 characters',
+        ],
+
+        os: 'android',
+        osRules: [
+          v => !!v || 'OS is required',
+          v => (v && v.length <= 15) || 'OS must be less than 15 characters',
+        ],
+
+        osv: '10.0',
+        osvRules: [
+          v => !!v || 'OS version is required',
+          v => (v && v.length <= 6) || 'OS version must be less than 6 characters',
+        ],
+      }),
+      methods: {
+        categorize () {
+          if (this.$refs.categorize.validate()) {
+            axios.post('/predict', [{
+              gamecategory: this.gamecategory,
+              subgamecategory: this.subgamecategory,
+              bundle: this.bundle,
+              created: this.created + ' 17:31:33',
+              shift: this.shift,
+              oblast: this.oblast,
+              city: this.city,
+              os: this.os,
+              osv: this.osv
+            }]).then(response => {
+              if (response.status == 200) {
+                predictions = JSON.parse(response.data);
+                prediction = predictions[0]
+
+                var values = [prediction[1], prediction[3], prediction[4], prediction[5]];
+                var labels = ['Женщины, 25-41 год ', 'Женщины, 25-41 год, Дети', 'Мужчины\\Женшины, 18-44 года, Животные', 'Мужчины\\Женшины, 18-45 лет'];
+
+                var data = [{
+                  values: values,
+                  labels: labels,
+                  domain: {column: 0},
+                  name: 'Category',
+                  hoverinfo: 'label+percent+name',
+                  hole: .6,
+                  type: 'pie'
+                }];
+
+                var layout = {
+                  height: '100%',
+                  width: '100%',
+                  showlegend: false
+                };
+                Plotly.newPlot('user-category', data, layout);
+              }
+            });
+          }
+        },
+      },
+      mounted() {
+        this.categorize();
+      }
+    })
+  </script>
+</body>
+</html>
