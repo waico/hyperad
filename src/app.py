@@ -2,7 +2,6 @@ import argparse
 import datetime;
 import os
 import pandas as pd
-import numpy as np
 
 import segmentation
 import clustering
@@ -151,9 +150,9 @@ async def csv(request):
             temp.write(chunk)
         
     df = pd.read_csv(temp_file_name)
-    df['Segment'] = np.random.randint(1, 6, size=len(df))
-    df['created'] = pd.to_datetime(df['created'])
     df = df.fillna('missing')
+    df['created'] = pd.to_datetime(df['created'])
+    df['Segment'] = segmentation.predict(df)['prediction']
     df = segmentation.get_time_features(df)
 
     df = clustering.preprocessing(df)
