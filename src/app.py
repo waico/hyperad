@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 import segmentation
+import clustering
 
 from aiohttp import web
 from aiohttp_swagger import *
@@ -148,13 +149,23 @@ async def csv(request):
                 break
             temp.write(chunk)
         
-    df = pd.read_csv(temp_file_name)
-    df['created'] = pd.to_datetime(df['created'])
-    df = df.fillna('missing')
+    # df = pd.read_csv(temp_file_name)
+    # df['created'] = pd.to_datetime(df['created'])
+    # df = df.fillna('missing')
+
+    df = clustering.preprocessing(pd.read_csv(temp_file_name, index_col='Unnamed: 0'))
+    df['cluster'] = clustering.model_inference(df)
+
+    table = clustering.table_generation(df)
+    print(table)
 
     os.remove(temp_file_name)
     
-    return web.json_response(df.to_json(orient = "records"))
+    response = {
+        'records': df.to_json(orient = "records"),
+        'table': table.reset_index().to_json(orient = "records")
+    }
+    return web.json_response(response)
 
 
 def main():

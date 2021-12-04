@@ -250,14 +250,15 @@
         file: undefined,
         headers: [
           { text: 'Game category', value: 'gamecategory' },
-          { text: 'Sub game category', value: 'subgamecategory' },
-          { text: 'Bundle', value: 'bundle' },
           { text: 'Region', value: 'oblast' },
-          { text: 'City', value: 'city' },
           { text: 'OS', value: 'os' },
-          { text: 'OS Version', value: 'osv' }
+          { text: 'OS Version', value: 'osv' },
+          { text: 'Сегмент', value: 'Segment' },
+          { text: 'Кластер', value: 'cluster' },
         ],
-        desserts: []
+        desserts: [],
+        table: [],
+        colorway: ['#f3cec9', '#e7a4b6', '#cd7eaf', '#a262a9', '#6f4d96', '#3d3b72', '#182844']
       }),
       methods: {
         categorize () {
@@ -298,7 +299,8 @@
                     t: 10,
                     pad: 4
                   },
-                  showlegend: false
+                  showlegend: false,
+                  colorway : this.colorway
                 };
                 Plotly.newPlot('user-category', data, layout, { responsive: true });
               }
@@ -318,31 +320,31 @@
               }
             ).then(response => {
               if (response.status == 200) {
-                this.desserts = JSON.parse(response.data);
+                this.desserts = JSON.parse(response.data.records);
+                this.table = JSON.parse(response.data.table);
+                
+                var traces = []
 
-                var os_set= new Set(this.desserts.map(x => x.os));
-                var os_unique = [];
-                os_set.forEach(os => {
-                  os_unique.push(this.desserts.filter(d => d.os == os).length)
+                var clusters = [...(new Set(this.desserts.map(x => x.cluster)))].sort();
+                var segments = [...(new Set(this.desserts.map(x => x.Segment)))].sort();
+                
+                segments.forEach(segment => {
+                  segment_clasters = []
+                  
+                  clusters.forEach(cluster => {
+                    segment_clasters.push(this.desserts.filter(d => d.cluster == cluster && d.Segment == segment).length)
+                  });
+
+                  traces.push({
+                    x: clusters,
+                    y: segment_clasters,
+                    name: segment,
+                    type: 'bar'
+                  });
                 });
 
-                var data = [{
-                  type: 'scatterpolar',
-                  r: os_unique,
-                  theta: [...os_set],
-                  fill: 'toself'
-                }]
-
-                var layout = {
-                  polar: {
-                    radialaxis: {
-                      visible: true,
-                      range: [0, Math.max.apply(null, os_unique)]
-                    }
-                  },
-                  showlegend: false
-                }
-                Plotly.newPlot("os-radar", data, layout)
+                var layout = { barmode: 'stack', colorway : this.colorway };
+                Plotly.newPlot("os-radar", traces, layout, { responsive: true })
 
                 this.file = undefined;
               }
