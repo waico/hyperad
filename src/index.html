@@ -152,7 +152,7 @@
                 accept=".csv"
                 show-size
                 counter
-                label="CSV Upload"
+                label="Выберите файл .csv"
               ></v-file-input>
             </template>
             <v-btn
@@ -160,7 +160,7 @@
               color="blue-grey"
               class="ma-2 white--text"
               @click="upload">
-              Upload
+              Загрузить
               <v-icon right dark> mdi-cloud-upload </v-icon>
             </v-btn>
           </v-row>
@@ -174,11 +174,13 @@
               ></v-data-table>
             </v-layout>
           </v-row>
-
           <v-row>
-            <div class="mx-auto my-6 text-center">
-              <div id="os-radar"></div>
-            </div>
+            <v-col cols="12" md="4" >
+              <div id="clusters-counts"></div>
+            </v-col>
+            <v-col cols="12" md="8" >
+              <div id="segment-clusters"></div>
+            </v-col>
           </v-row>
         </v-container>
       </v-main>
@@ -249,16 +251,17 @@
 
         file: undefined,
         headers: [
-          { text: 'Game category', value: 'gamecategory' },
-          { text: 'Region', value: 'oblast' },
-          { text: 'OS', value: 'os' },
-          { text: 'OS Version', value: 'osv' },
+          { text: 'Категория', value: 'gamecategory' },
+          { text: 'Регион', value: 'oblast' },
+          { text: 'Система', value: 'os' },
+          { text: 'Версия', value: 'osv' },
           { text: 'Сегмент', value: 'Segment' },
           { text: 'Кластер', value: 'cluster' },
         ],
         desserts: [],
         table: [],
-        colorway: ['#f3cec9', '#e7a4b6', '#cd7eaf', '#a262a9', '#6f4d96', '#3d3b72', '#182844']
+        colorway: ['#f3cec9', '#e7a4b6', '#cd7eaf', '#a262a9', '#6f4d96', '#3d3b72', '#182844', '#ffa600'],
+        colorway_second: ['#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600']
       }),
       methods: {
         categorize () {
@@ -363,7 +366,35 @@
           });
 
           var layout = { barmode: 'stack', colorway : this.colorway };
-          Plotly.newPlot("os-radar", traces, layout, { responsive: true })
+          Plotly.newPlot("segment-clusters", traces, layout, { responsive: true })
+
+          clusters_counts = [];
+          clusters.forEach(cluster => {
+            clusters_counts.push(this.desserts.filter(d => d.cluster == cluster).length)
+          });
+
+          var data = [{
+            values: clusters_counts,
+            labels: clusters,
+            domain: {column: 0},
+            name: 'Кластер',
+            hoverinfo: 'label+percent+name',
+            hole: .6,
+            type: 'pie'
+          }];
+
+          layout = {
+            margin: {
+              l: 60,
+              r: 10,
+              b: 0,
+              t: 10,
+              pad: 4
+            },
+            showlegend: false,
+            colorway : this.colorway_second
+          };
+          Plotly.newPlot('clusters-counts', data, layout, { responsive: true });
 
           this.file = undefined;
         },
