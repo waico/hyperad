@@ -322,37 +322,50 @@
               if (response.status == 200) {
                 this.desserts = JSON.parse(response.data.records);
                 this.table = JSON.parse(response.data.table);
-                
-                var traces = []
 
-                var clusters = [...(new Set(this.desserts.map(x => x.cluster)))].sort();
-                var segments = [...(new Set(this.desserts.map(x => x.Segment)))].sort();
-                
-                segments.forEach(segment => {
-                  segment_clasters = []
-                  
-                  clusters.forEach(cluster => {
-                    segment_clasters.push(this.desserts.filter(d => d.cluster == cluster && d.Segment == segment).length)
-                  });
-
-                  traces.push({
-                    x: clusters,
-                    y: segment_clasters,
-                    name: segment,
-                    type: 'bar'
-                  });
-                });
-
-                var layout = { barmode: 'stack', colorway : this.colorway };
-                Plotly.newPlot("os-radar", traces, layout, { responsive: true })
-
-                this.file = undefined;
+                this.clustering();
               }
             })
             .catch(error => {
               console.error(error.message);
             });
           }
+        },
+        demoClustering() {
+          
+          if (this.desserts.length == 0) {
+            axios.get('static/demo.json').then(response => {
+              this.desserts = response.data.records;
+              this.table = response.data.table;
+              this.clustering();
+            });
+          }
+        },
+        clustering() {
+          var traces = []
+
+          var clusters = [...(new Set(this.desserts.map(x => x.cluster)))].sort();
+          var segments = [...(new Set(this.desserts.map(x => x.Segment)))].sort();
+          
+          segments.forEach(segment => {
+            segment_clasters = []
+            
+            clusters.forEach(cluster => {
+              segment_clasters.push(this.desserts.filter(d => d.cluster == cluster && d.Segment == segment).length)
+            });
+
+            traces.push({
+              x: clusters,
+              y: segment_clasters,
+              name: segment,
+              type: 'bar'
+            });
+          });
+
+          var layout = { barmode: 'stack', colorway : this.colorway };
+          Plotly.newPlot("os-radar", traces, layout, { responsive: true })
+
+          this.file = undefined;
         },
         focusDate() {
           setTimeout(() => {
@@ -371,6 +384,7 @@
       },
       mounted() {
         this.categorize();
+        this.demoClustering();
       }
     })
   </script>
