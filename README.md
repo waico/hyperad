@@ -21,10 +21,12 @@
 ## Задача 1
 Подготовка данных:
 - Очистка данных
-- Генерация признаков
+- Генерация признаков  
+Код для предобработки данных находится [здесь](https://github.com/waico/hyperad/blob/datascience/notebooks/code/Process_data.ipynb).
 
 Построение моделей классификации:
-- CatboostClassifier 5 Folds
+- CatboostClassifier 5 Folds  
+Код для обучения моделей находится [здесь](https://github.com/waico/hyperad/blob/datascience/notebooks/code/Segmentation_Model.ipynb).
 
 ## Задача 2
 Подготовка данных:
