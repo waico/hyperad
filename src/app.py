@@ -2,6 +2,7 @@ import argparse
 import datetime;
 import os
 import pandas as pd
+import numpy as np
 
 import segmentation
 import clustering
@@ -149,15 +150,16 @@ async def csv(request):
                 break
             temp.write(chunk)
         
-    # df = pd.read_csv(temp_file_name)
-    # df['created'] = pd.to_datetime(df['created'])
-    # df = df.fillna('missing')
+    df = pd.read_csv(temp_file_name)
+    df['Segment'] = np.random.randint(1, 6, size=len(df))
+    df['created'] = pd.to_datetime(df['created'])
+    df = df.fillna('missing')
+    df = segmentation.get_time_features(df)
 
-    df = clustering.preprocessing(pd.read_csv(temp_file_name, index_col='Unnamed: 0'))
+    df = clustering.preprocessing(df)
     df['cluster'] = clustering.model_inference(df)
 
     table = clustering.table_generation(df)
-    print(table)
 
     os.remove(temp_file_name)
     
