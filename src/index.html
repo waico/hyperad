@@ -11,19 +11,47 @@
 <body>
   <div id="app">
     <v-app>
+      <v-app-bar app>
+        <v-container>
+          <img src="static/waico.svg">
+          <div class="float-right">
+            <v-btn color="success" href="api/doc" small>
+              SWAGGER
+            </v-btn>
+          </div>
+        </v-container>
+      </v-app-bar>
       <v-main>
+        <v-parallax
+          src="https://www.eclatbysylvi.com/wp-content/uploads/2016/05/Light-Blue-blur-background.jpg"
+        >
+          <v-row
+            align="center"
+            justify="center"
+          >
+            <v-col
+              class="text-center black--text"
+              cols="12"
+            >
+              <h1 class="text-h4 font-weight-thin mb-4">
+                WAICO x Hyper AdTech
+              </h1>
+              <h4 class="subtitle-1">
+                Решение для определения заданных сегментов аудитории в мобильной среде по косвенным данным
+              </h4>
+            </v-col>
+          </v-row>
+        </v-parallax>
         <v-container>
           <v-row no-gutters>
             <v-col>
+              <h1 class="font-weight-thin mb-2 mt-6">Классификация</h1>
               <v-card>
-                <v-card-title>Классификация</v-card-title>
-
                 <v-card-text>
                   <v-form
                     ref="categorize"
                     v-model="valid"
                     lazy-validation>
-
                     <v-row>
                       <v-col cols="12" md="8" >
                         <v-row>
@@ -145,6 +173,8 @@
               </v-card>
             </v-col>
           </v-row>
+          
+          <h1 class="font-weight-thin mb-2 mt-10">Сегментация</h1>
           <v-row class="mb-3">
             <template>
               <v-file-input
@@ -184,6 +214,13 @@
           </v-row>
         </v-container>
       </v-main>
+      <v-footer>
+        <v-card flat tile width="100%" class="grey lighten-4 text-center">
+          <v-card-text>
+            {{ new Date().getFullYear() }} — <strong>WAICO.ru</strong>
+          </v-card-text>
+        </v-card>
+      </v-footer>
     </v-app>
   </div>
 
