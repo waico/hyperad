@@ -14,115 +14,124 @@
       <v-main>
         <v-container>
           <v-row no-gutters>
-            <v-col
-              cols="12"
-              md="6">
-              <div class="mx-auto my-6 text-center">
-                <div id="user-category"></div>
-              </div>
-            </v-col>
-            <v-col
-              cols="12"
-              md="6">
-              <v-card
-                class="mx-auto my-6"
-                max-width="500">
-                <v-card-title>User classification</v-card-title>
+            <v-col>
+              <v-card>
+                <v-card-title>Классификация</v-card-title>
 
                 <v-card-text>
                   <v-form
                     ref="categorize"
                     v-model="valid"
                     lazy-validation>
-                    <v-text-field
-                      v-model="gamecategory"
-                      :counter="20"
-                      :rules="gamecategoryRules"
-                      label="Game Category"
-                      required></v-text-field>
-                    
-                    <v-text-field
-                      v-model="subgamecategory"
-                      :counter="50"
-                      :rules="subgamecategoryRules"
-                      label="Sub game category"
-                      required></v-text-field>
-                    
-                    <v-text-field
-                      v-model="bundle"
-                      :counter="150"
-                      :rules="bundleRules"
-                      label="Bundle"
-                      required></v-text-field>
-                    
-                    <v-row class="mb-3">
-                      <v-col>
-                        <!-- <v-date-picker class="mt-4" :elevation="1" v-model="created" locale="ru-ru" full-width></v-date-picker> -->
-                        <v-menu
-                          v-model="dateMenu"
-                          :close-on-content-click="false"
-                          :nudge-right="40"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="290px"
-                          max-width="290px">
-                          <template v-slot:activator="{on}">
+
+                    <v-row>
+                      <v-col cols="12" md="8" >
+                        <v-row>
+                          <v-col cols="12" md="6" >
                             <v-text-field
-                              readonly
-                              hide-details
-                              :value="created"
-                              label="Created"
-                              v-on="on"
-                              @focus="focusDate"
-                              @blur="blurDate"
-                            ></v-text-field>
-                          </template>
-                          <v-date-picker
-                            locale="ru-ru"
-                            v-model="created"
-                            no-title
-                            @input="dateMenu = false"
-                          ></v-date-picker>
-                        </v-menu>
-                      </v-col>
+                              v-model="gamecategory"
+                              :counter="20"
+                              :rules="gamecategoryRules"
+                              label="Категория"
+                              required></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="6" >
+                            <v-text-field
+                              v-model="subgamecategory"
+                              :counter="50"
+                              :rules="subgamecategoryRules"
+                              label="Подкатегория"
+                              required></v-text-field>
+                          </v-col>
+                        </v-row>
+                        
+                        <v-text-field
+                          v-model="bundle"
+                          :counter="150"
+                          :rules="bundleRules"
+                          label="Сборка"
+                          required></v-text-field>
+
+                        <v-row class="mb-3">
+                          <v-col>
+                            <v-menu
+                              v-model="dateMenu"
+                              :close-on-content-click="false"
+                              :nudge-right="40"
+                              transition="scale-transition"
+                              offset-y
+                              min-width="290px"
+                              max-width="290px">
+                              <template v-slot:activator="{on}">
+                                <v-text-field
+                                  readonly
+                                  hide-details
+                                  :value="created"
+                                  label="Дата"
+                                  v-on="on"
+                                  @focus="focusDate"
+                                  @blur="blurDate"
+                                ></v-text-field>
+                              </template>
+                              <v-date-picker
+                                locale="ru-ru"
+                                v-model="created"
+                                no-title
+                                @input="dateMenu = false"
+                              ></v-date-picker>
+                            </v-menu>
+                          </v-col>
+                        </v-row>
+
+                        <v-text-field
+                          v-model="shift"
+                          :counter="6"
+                          :rules="shiftRules"
+                          label="Зона"
+                          required></v-text-field>
                       
+                        <v-row>
+                          <v-col cols="12" md="6" >
+                            <v-text-field
+                              v-model="oblast"
+                              :counter="120"
+                              :rules="oblastRules"
+                              label="Область"
+                              required></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="6" >
+                            <v-text-field
+                              v-model="city"
+                              :counter="120"
+                              :rules="cityRules"
+                              label="Город"
+                              required></v-text-field>
+                          </v-col>
+                        </v-row>
+
+                        <v-row>
+                          <v-col cols="12" md="6" >
+                            <v-text-field
+                              v-model="os"
+                              :counter="15"
+                              :rules="osRules"
+                              label="Система"
+                              required></v-text-field>
+                          </v-col>
+                          <v-col cols="12" md="6" >
+                            <v-text-field
+                              v-model="osv"
+                              :counter="6"
+                              :rules="osvRules"
+                              label="Версия"
+                              required></v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <div id="user-category"></div>
+                      </v-col>
                     </v-row>
-
-                    <v-text-field
-                      v-model="shift"
-                      :counter="6"
-                      :rules="shiftRules"
-                      label="Shift"
-                      required></v-text-field>
-
-                    <v-text-field
-                      v-model="oblast"
-                      :counter="120"
-                      :rules="oblastRules"
-                      label="Region"
-                      required></v-text-field>
-
-                    <v-text-field
-                      v-model="city"
-                      :counter="120"
-                      :rules="cityRules"
-                      label="City"
-                      required></v-text-field>
-
-                    <v-text-field
-                      v-model="os"
-                      :counter="15"
-                      :rules="osRules"
-                      label="OS"
-                      required></v-text-field>
-                    
-                    <v-text-field
-                      v-model="osv"
-                      :counter="6"
-                      :rules="osvRules"
-                      label="OS Version"
-                      required></v-text-field>
-                    
                     </v-form>
                 </v-card-text>
 
@@ -130,7 +139,7 @@
 
                 <v-card-actions>
                   <v-btn text :disabled="!valid" @click="categorize">
-                    Сategorize
+                    Классифицировать
                   </v-btn>
                 </v-card-actions>
               </v-card>
@@ -282,11 +291,16 @@
                 }];
 
                 var layout = {
-                  height: '100%',
-                  width: '100%',
+                  margin: {
+                    l: 60,
+                    r: 10,
+                    b: 0,
+                    t: 10,
+                    pad: 4
+                  },
                   showlegend: false
                 };
-                Plotly.newPlot('user-category', data, layout);
+                Plotly.newPlot('user-category', data, layout, { responsive: true });
               }
             });
           }
