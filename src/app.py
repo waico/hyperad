@@ -8,26 +8,21 @@ import clustering
 
 from aiohttp import web
 from aiohttp_swagger import *
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import async_bulk
 
 parser = argparse.ArgumentParser(description="HyperAdTech aiohttp server")
 parser.add_argument('--host')
 parser.add_argument('--port')
 
+es = Elasticsearch(['http://localhost:9200/'])
 
-def test_predict(pickle_path: str):
-
-    from datetime import datetime
-
-    start = datetime.now()
-
-    df = pd.read_pickle(pickle_path)
-    df['created'] = pd.to_datetime(df['created'])
-    df = df.fillna('missing')
-
-    prediction = segmentation.predict(df)
-    prediction.info()
-
-    print(datetime.now() - start)
+async def gendata(index: str, documents):
+    for document in documents:
+        yield {
+            "_index": index,
+            "doc": document,
+        }
 
 
 async def index(request):
@@ -115,6 +110,11 @@ async def predict(request):
     data['created'] = pd.to_datetime(data['created'])
 
     prediction = segmentation.predict(data)[[1, 3, 4, 5, 'prediction', 'confidence']]
+    response = prediction.to_json(orient = "records")
+
+    if es.ping():
+        await async_bulk(es, gendata('segmentation', response))
+
     return web.json_response(prediction.to_json(orient = "records"))
 
 

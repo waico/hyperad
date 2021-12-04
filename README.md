@@ -55,6 +55,7 @@ git clone https://github.com/waico/hyperad.git
 cd ./hyperad
 docker-compose up -d --build
 ```
+Решение будет доступно по адресу http://127.0.0.1:8010/
 
 ## Запуск решения локально
 
@@ -71,5 +72,6 @@ cd ./hyperad/src
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r .\requirements.txt
-python .\app.py
+python .\app.py --host 127.0.0.1 --port 8010
 ```
+Решение будет доступно по адресу http://127.0.0.1:8010/
