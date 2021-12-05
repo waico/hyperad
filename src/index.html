@@ -200,6 +200,7 @@
                 :headers="headers"
                 :items="desserts"
                 :items-per-page="15"
+                :loading='loading'
                 class="elevation-1"
               ></v-data-table>
             </v-layout>
@@ -297,6 +298,7 @@
           { text: 'Сегмент', value: 'Segment' },
           { text: 'Кластер', value: 'cluster' },
         ],
+        loading: false,
         desserts: [],
         table: [],
         colorway: ['#f3cec9', '#e7a4b6', '#cd7eaf', '#a262a9', '#6f4d96', '#3d3b72', '#182844', '#ffa600'],
@@ -353,6 +355,7 @@
           if (this.file) {
             let formData = new FormData();
             formData.append('file', this.file);
+            this.loading = true;
             axios.post( '/csv',
               formData,
               {
@@ -365,6 +368,7 @@
                 this.desserts = JSON.parse(response.data.records);
                 this.table = JSON.parse(response.data.table);
 
+                this.loading = false;
                 this.clustering();
               }
             })
@@ -374,11 +378,12 @@
           }
         },
         demoClustering() {
-          
           if (this.desserts.length == 0) {
+            this.loading = true;
             axios.get('static/demo.json').then(response => {
               this.desserts = response.data.records;
               this.table = response.data.table;
+              this.loading = false;
               this.clustering();
             });
           }

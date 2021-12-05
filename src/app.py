@@ -115,7 +115,7 @@ async def predict(request):
     if es.ping():
         await async_bulk(es, gendata('segmentation', response))
 
-    return web.json_response(prediction.to_json(orient = "records"))
+    return web.json_response(response)
 
 
 async def csv(request):
