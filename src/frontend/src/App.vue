@@ -19,6 +19,12 @@
             <classification />
           </v-col>
         </v-row>
+        <v-row>
+          <v-col>
+            <h1 class="font-weight-thin mb-2 mt-6">Сегментация</h1>
+            <segmentation />
+          </v-col>
+        </v-row>
       </v-container>
     </v-main>
   </v-app>
@@ -26,12 +32,14 @@
 
 <script>
 import Classification from './components/Classification';
+import Segmentation from './components/Segmentation';
 
 export default {
   name: 'App',
 
   components: {
-    Classification
+    Classification,
+    Segmentation
   }
 };
 </script>
