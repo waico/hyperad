@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card :loading="loading">
     <v-card-text>
       <v-form ref="classification" v-model="valid" lazy-validation>
         <v-row>
@@ -107,7 +107,7 @@
             </v-row>
           </v-col>
           <v-col cols="12" md="4">
-            <div id="user-category"></div>
+            <div id="classification-plot"></div>
           </v-col>
         </v-row>
       </v-form>
@@ -122,11 +122,16 @@
 </template>
 
 <script>
+  import axios from 'axios';
+  import Plotly from 'plotly.js-dist-min';
+
   export default {
     name: 'classification',
 
     data: () => ({
       valid: true,
+      loading: false,
+
       gamecategory: 'Applications',
       gamecategoryRules: [
         v => !!v || 'Game category is required',
@@ -177,20 +182,57 @@
         v => !!v || 'OS version is required',
         v => (v && v.length <= 6) || 'OS version must be less than 6 characters',
       ],
-
-      file: undefined,
-      headers: [
-        { text: 'Категория', value: 'gamecategory' },
-        { text: 'Регион', value: 'oblast' },
-        { text: 'Система', value: 'os' },
-        { text: 'Версия', value: 'osv' },
-        { text: 'Сегмент', value: 'Segment' },
-        { text: 'Кластер', value: 'cluster' },
-      ]
+      
+      layout: {
+        margin: {
+          l: 60,
+          r: 10,
+          b: 0,
+          t: 10,
+          pad: 4
+        },
+        showlegend: false,
+        colorway : ['#f3cec9', '#e7a4b6', '#cd7eaf', '#a262a9', '#6f4d96', '#3d3b72', '#182844', '#ffa600']
+      }
     }),
     methods: {
       classify () {
-        // Handle classification
+        this.loading = true;
+        if (this.$refs.classification.validate()) {
+          axios.post(`${process.env.VUE_APP_API_ROOT}predict`, [{
+            gamecategory: this.gamecategory,
+            subgamecategory: this.subgamecategory,
+            bundle: this.bundle,
+            created: this.created + ' 17:31:33', // TODO: Add time picker
+            shift: this.shift,
+            oblast: this.oblast,
+            city: this.city,
+            os: this.os,
+            osv: this.osv
+          }]).then(response => {
+            if (response.status == 200) {
+              let predictions = JSON.parse(response.data);
+              this.loading = false;
+              this.plot(predictions[0]);
+            }
+          });
+        }
+      },
+      plot(prediction) {
+        var values = [prediction[1], prediction[3], prediction[4], prediction[5]];
+        var labels = ['Женщины, 25-41 год ', 'Женщины, 25-41 год, Дети', 'Мужчины\\Женшины, 18-44 года, Животные', 'Мужчины\\Женшины, 18-45 лет'];
+
+        var data = [{
+          values: values,
+          labels: labels,
+          domain: {column: 0},
+          name: 'Category',
+          hoverinfo: 'label+percent+name',
+          hole: .6,
+          type: 'pie'
+        }];
+
+        Plotly.newPlot('classification-plot', data, this.layout, { responsive: true });
       },
       focusDate() {
         setTimeout(() => {
