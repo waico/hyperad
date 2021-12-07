@@ -1,4 +1,5 @@
 import argparse
+import aiohttp_cors
 import datetime;
 import os
 import pandas as pd
@@ -172,11 +173,25 @@ async def csv(request):
 def main():
     STATIC_PATH = os.path.join(os.path.dirname(__file__), "static")    
 
+    # Setup application routes.
     app = web.Application()
     app.router.add_static('/static', STATIC_PATH, name='static')
     app.router.add_route('GET', "/", index)
     app.router.add_route('POST', "/predict", predict)
     app.router.add_route('POST', "/csv", csv)
+
+    # Configure default CORS settings.
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+                allow_credentials=True,
+                expose_headers="*",
+                allow_headers="*",
+            )
+    })
+
+    # Configure CORS on all routes.
+    for route in list(app.router.routes()):
+        cors.add(route)
 
     setup_swagger(app, ui_version=2, ) 
 
