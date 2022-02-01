@@ -65,7 +65,31 @@
     }),
     methods: {
       upload() {
+        if (this.file) {
+          let formData = new FormData();
+          formData.append('file', this.file);
+          this.loading = true;
+          axios.post(`${process.env.VUE_APP_API_ROOT}csv`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            }
+          ).then(response => {
+            if (response.status == 200) {
+              this.items = JSON.parse(response.data.records);
+              this.table = JSON.parse(response.data.table);
 
+              this.loading = false;
+              this.clustering();
+            }
+          })
+          .catch(error => {
+            console.error(error.message);
+            this.loading = false;
+          });
+        }
       },
       
       clustering() {
