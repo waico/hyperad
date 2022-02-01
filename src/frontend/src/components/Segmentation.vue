@@ -42,6 +42,9 @@
 </template>
 
 <script>
+  import axios from 'axios';
+  import Plotly from 'plotly.js-dist-min';
+
   export default {
     name: 'segmentation',
 
@@ -56,7 +59,9 @@
         { text: 'Сегмент', value: 'Segment' },
         { text: 'Кластер', value: 'cluster' }
       ],
-      items: []
+      items: [],
+      table: [],
+      colorway: ['#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087', '#f95d6a', '#ff7c43', '#ffa600']
     }),
     methods: {
       upload() {
@@ -64,11 +69,70 @@
       },
       
       clustering() {
+        var traces = []
 
+        var clusters = [...(new Set(this.items.map(x => x.cluster)))].sort();
+        var segments = [...(new Set(this.items.map(x => x.Segment)))].sort();
+        
+        segments.forEach(segment => {
+          let segment_clasters = []
+          
+          clusters.forEach(cluster => {
+            segment_clasters.push(this.items.filter(d => d.cluster == cluster && d.Segment == segment).length)
+          });
+
+          traces.push({
+            x: clusters,
+            y: segment_clasters,
+            name: segment,
+            type: 'bar'
+          });
+        });
+
+        var layout = { barmode: 'stack', colorway : this.colorway };
+        Plotly.newPlot("segment-clusters", traces, layout, { responsive: true })
+
+        let clusters_counts = [];
+        clusters.forEach(cluster => {
+          clusters_counts.push(this.items.filter(d => d.cluster == cluster).length)
+        });
+
+        var data = [{
+          values: clusters_counts,
+          labels: clusters,
+          domain: {column: 0},
+          name: 'Кластер',
+          hoverinfo: 'label+percent+name',
+          hole: .6,
+          type: 'pie'
+        }];
+
+        layout = {
+          margin: {
+            l: 60,
+            r: 10,
+            b: 0,
+            t: 10,
+            pad: 4
+          },
+          showlegend: false,
+          colorway : this.colorway
+        };
+        Plotly.newPlot('clusters-counts', data, layout, { responsive: true });
+
+        this.file = undefined;
       }
     },
     mounted() {
-
+      if (this.items.length == 0) {
+        this.loading = true;
+        axios.get(`${process.env.VUE_APP_API_ROOT}static/demo.json`).then(response => {
+          this.items = response.data.records;
+          this.table = response.data.table;
+          this.loading = false;
+          this.clustering();
+        });
+      }
     }
   }
 </script>
