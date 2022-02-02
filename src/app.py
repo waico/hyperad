@@ -10,12 +10,12 @@ import clustering
 from aiohttp import web
 from aiohttp_swagger import *
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import async_bulk
 
 parser = argparse.ArgumentParser(description="HyperAdTech aiohttp server")
 parser.add_argument('--host')
 parser.add_argument('--port')
 
+# TODO: Save model inference results
 es = Elasticsearch(['http://localhost:9200/'])
 
 async def gendata(index: str, documents):
@@ -112,9 +112,6 @@ async def predict(request):
 
     prediction = segmentation.predict(data)[[1, 3, 4, 5, 'prediction', 'confidence']]
     response = prediction.to_json(orient = "records")
-
-    if es.ping():
-        await async_bulk(es, gendata('segmentation', response))
 
     return web.json_response(response)
 
